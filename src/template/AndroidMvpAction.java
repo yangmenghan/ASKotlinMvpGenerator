@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import template.metadata.MVPMetaData;
+import template.metadata.MVPMetaDataFactory;
 
 import java.io.*;
 import java.util.regex.Matcher;
@@ -18,9 +20,10 @@ import java.util.regex.Pattern;
 public class AndroidMvpAction extends AnAction {
     Project project;
     VirtualFile selectGroup;
-    String pack;
+    MVPMetaData metaData;
 
-    @Override public void actionPerformed(AnActionEvent e) {
+    @Override
+    public void actionPerformed(AnActionEvent e) {
         project = e.getProject();
         selectGroup = DataKeys.VIRTUAL_FILE.getData(e.getDataContext());
         String className =
@@ -29,55 +32,44 @@ public class AndroidMvpAction extends AnAction {
             System.out.print("No name provided");
             return;
         }
-        createMvp(className);
+        metaData = MVPMetaDataFactory.getMetaData(className, getPrefix(className), selectGroup, project);
+        createMvp();
         project.getBaseDir().refresh(false, true);
     }
 
     /**
      * Create MVP
      */
-    private void createMvp(String viewName) {
-        boolean isFragment = viewName.endsWith("Fragment") || viewName.endsWith("fragment");
-
-        String prefix = getPrefix(viewName);
-        String path = selectGroup.getPath() + "/" + prefix.toLowerCase();
-        String packageName = path.substring(path.indexOf("java") + 5, path.length()).replace("/", ".");
-
-        prefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1);
-        pack = path.substring(path.indexOf("java") + 5, path.indexOf("/view")).replace("/", ".");
-        System.out.print(prefix + "----" + packageName);
-
-        String layoutpath = project.getBasePath() + "/app/src/main/res/layout/";
+    private void createMvp() {
         String layout = readFile("layout.txt");
 
-        generateFile("Contract", prefix, packageName, path, isFragment);
-        generateFile("Presenter", prefix, packageName, path, isFragment);
-        generateFile("Module", prefix, packageName, path + "/di/", isFragment);
-        if (isFragment) {
-            generateFile("Fragment", prefix, packageName, path, isFragment);
-            writetoFile(layout, layoutpath, "fragment_" + camelToSnakeCase(prefix) + ".xml");
+        generateFile("Contract", metaData.path);
+        generateFile("Presenter", metaData.path);
+        generateFile("Module", metaData.path + "/di/");
+        if (metaData.useFragment) {
+            generateFile("Fragment", metaData.path);
+            writetoFile(layout, metaData.layoutPath, "fragment_" + camelToSnakeCase(metaData.prefix) + ".xml");
         } else {
-            generateFile("Activity", prefix, packageName, path, isFragment);
-            writetoFile(layout, layoutpath, "activity_" + camelToSnakeCase(prefix) + ".xml");
+            generateFile("Activity", metaData.path);
+            writetoFile(layout, metaData.layoutPath, "activity_" + camelToSnakeCase(metaData.prefix) + ".xml");
         }
     }
 
-    private void generateFile(String filename, String prefix, String packageName, String path, Boolean isFragment) {
-        String viewTypeString = isFragment  ? "Fragment" : "Activity";
+    private void generateFile(String filename, String path) {
+        String viewTypeString = metaData.useFragment ? "Fragment" : "Activity";
         String content = readFile(filename + ".txt")
-                .replace("&package&", packageName)
-                .replace("&Contract&", prefix + "Contract")
-                .replace("&Presenter&", prefix + "Presenter")
-                .replace("&Activity&", prefix + "Activity")
-                .replace("&Fragment&", prefix + "Fragment")
-                .replace("&Module&", prefix + "Module")
-                .replace("&View&", prefix + "View")
-                .replace("&Binding&", viewTypeString + prefix + "Binding")
-                .replace("&ViewClass&",  prefix + viewTypeString)
-                .replace("&pack&", pack)
-                .replace("&package&", packageName);
+                .replace("&Contract&", metaData.prefix + "Contract")
+                .replace("&Presenter&", metaData.prefix + "Presenter")
+                .replace("&Activity&", metaData.prefix + "Activity")
+                .replace("&Fragment&", metaData.prefix + "Fragment")
+                .replace("&Module&", metaData.prefix + "Module")
+                .replace("&View&", metaData.prefix + "View")
+                .replace("&Binding&", viewTypeString + metaData.prefix + "Binding")
+                .replace("&ViewClass&", metaData.prefix + viewTypeString)
+                .replace("&pack&", metaData.rootPackage)
+                .replace("&package&", metaData.packageName);
 
-        writetoFile(content, path, prefix + filename +".kt");
+        writetoFile(content, path, metaData.prefix + filename + ".kt");
     }
 
     private String getPrefix(String prefix) {
