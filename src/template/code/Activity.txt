@@ -1,6 +1,7 @@
 package &package&
 
 import android.os.Bundle
+import android.content.Context
 import javax.inject.Inject
 import &package&.&Contract&.UiModel
 import &pack&.databinding.&Binding&
@@ -15,13 +16,20 @@ class &Activity& : DaggerActivity(), &Contract&.View {
         super.onCreate(savedInstanceState)
         binding = &Binding&.inflate(layoutInflater)
         setContentView(binding.root)
-        initView()
+        initViews()
     }
 
-    private fun initView() {
+    private fun initViews() {
     }
 
     override fun setModel(model: UiModel) = when(model){
 
+    }
+
+    companion object {
+        const val EXTRA_ID = "extra_id"
+
+        fun createIntent(context: Context, id: String) =
+            Intent(context, &Activity&::class.java).putExtra(EXTRA_ID, id)
     }
 }

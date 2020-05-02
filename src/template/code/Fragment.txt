@@ -19,7 +19,13 @@ class &Fragment& : DaggerFragment(), &Contract&.View {
         return binding.root
     }
 
-    private fun initView() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initViews()
+    }
+
+    private fun initViews() {
+        binding.
     }
 
     override fun setModel(model: UiModel) = when(model){
@@ -27,8 +33,10 @@ class &Fragment& : DaggerFragment(), &Contract&.View {
     }
 
     companion object {
-        fun newInstance() = &Fragment&().apply {
-                arguments = Bundle()
+        const val ARG_ID = "arg_id"
+
+        fun newInstance(id: String) = &Fragment&().apply {
+                arguments = bundleOf(ARG_ID to id)
             }
         }
     }
