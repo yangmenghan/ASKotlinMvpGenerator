@@ -1,16 +1,17 @@
 package &package&
 
-import &pack&.R
-import android.view.LayoutInflater
+import android.os.Bundle
 import javax.inject.Inject
-import &pack&.&Contract&.UiModel
+import &package&.&Contract&.UiModel
+import &pack&.databinding.&Binding&
+import dagger.android.DaggerActivity
 
 class &Activity& : DaggerActivity(), &Contract&.View {
 
     @Inject lateinit var presenter: &Contract&.Presenter
     private lateinit var binding: &Binding&
 
-    override fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = &Binding&.inflate(layoutInflater)
         setContentView(binding.root)

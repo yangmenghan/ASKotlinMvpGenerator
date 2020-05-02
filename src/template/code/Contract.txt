@@ -3,7 +3,7 @@ package &package&
 interface &Contract& {
 
     interface View {
-        fun setModel(model: &UiModel&)
+        fun setModel(model: UiModel)
     }
 
     interface Presenter {

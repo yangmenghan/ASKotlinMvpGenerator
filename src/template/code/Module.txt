@@ -2,9 +2,9 @@ package &package&
 
 import dagger.Binds
 import dagger.Module
-import &pack&.&Presenter&
-import &pack&.&ViewClass&
-import &pack&.&Contract&
+import &package&.&Presenter&
+import &package&.&ViewClass&
+import &package&.&Contract&
 
 @Module
 abstract class &Module& {

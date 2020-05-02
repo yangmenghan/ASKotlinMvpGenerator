@@ -1,6 +1,5 @@
 package &package&
 
-import android.os.Bundle
 import javax.inject.Inject
 
 class &Presenter& @Inject constructor(

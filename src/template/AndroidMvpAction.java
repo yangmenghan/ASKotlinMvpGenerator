@@ -52,7 +52,7 @@ public class AndroidMvpAction extends AnAction {
 
         generateFile("Contract", prefix, packageName, path, isFragment);
         generateFile("Presenter", prefix, packageName, path, isFragment);
-        generateFile("DaggerModule", prefix, packageName, path + "/di/", isFragment);
+        generateFile("Module", prefix, packageName, path + "/di/", isFragment);
         if (isFragment) {
             generateFile("Fragment", prefix, packageName, path, isFragment);
             writetoFile(layout, layoutpath, "fragment_" + camelToSnakeCase(prefix) + ".xml");
@@ -74,7 +74,8 @@ public class AndroidMvpAction extends AnAction {
                 .replace("&View&", prefix + "View")
                 .replace("&Binding&", viewTypeString + prefix + "Binding")
                 .replace("&ViewClass&",  prefix + viewTypeString)
-                .replace("&pack&", pack);
+                .replace("&pack&", pack)
+                .replace("&package&", packageName);
 
         writetoFile(content, path, prefix + filename +".kt");
     }
