@@ -1,0 +1,26 @@
+package &package&
+
+import dagger.Binds
+import dagger.Module
+import &pack&.&Presenter&
+import &pack&.&ViewClass&
+import &pack&.&Contract&
+
+@Module
+abstract class &Module& {
+
+    @Binds
+    abstract fun bind&Presenter&(presenter: &Presenter&): &Contract&.Presenter
+
+    @Binds
+    abstract fun bind&View&(view: &ViewClass&): &Contract&.View
+}
+
+// TODO
+// 1 - Add in android binding module
+ @ContributesAndroidInjector(modules = [&Module&::class])
+    abstract fun bind&ViewClass&(): &ViewClass&
+
+// 2 - Add in Component imported modules
+
+&Module&::class,

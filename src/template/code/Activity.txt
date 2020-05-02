@@ -1,25 +1,26 @@
 package &package&
 
 import &pack&.R
-import &base&.BaseActivity
+import android.view.LayoutInflater
+import javax.inject.Inject
+import &pack&.&Contract&.UiModel
 
-/**
- * @author yyx
- */
+class &Activity& : DaggerActivity(), &Contract&.View {
 
-class &Activity& : BaseActivity<&Contract&.View, &Presenter&>(), &Contract&.View{
+    @Inject lateinit var presenter: &Contract&.Presenter
+    private lateinit var binding: &Binding&
 
-    override var mPresenter: &Presenter& = &Presenter&()
-
-
-    override fun layoutResID(): Int  = R.layout.&activity_main&
-
-    override fun initView() {
+    override fun onCreate(savedInstanceState: Bundle) {
+        super.onCreate(savedInstanceState)
+        binding = &Binding&.inflate(layoutInflater)
+        setContentView(binding.root)
+        initView()
     }
 
-    override fun initData() {
+    private fun initView() {
     }
 
-    override fun onSuccessData(url_type: Int, load_type: Int, msg: String, status: Int) {
+    override fun setModel(model: UiModel) = when(model){
+
     }
 }

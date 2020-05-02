@@ -6,8 +6,7 @@
 
     <description><![CDATA[
       KotlinMvp is based on the evolution of the MVPPlugin plug-in, is a quick generation of Ktolin MVP template plug ins <br>
-      Please go to <a href="https://github.com/y1xian/KotlinMvp">GitHub</a> or <a href="http://www.jianshu.com/p/4ccb8d3175bb">http://www.jianshu.com/p/4ccb8d3175bb</a> for details<br>
-      KotlinMvp是一个能快速开发的插件,一键生成MVP模板,并且已经帮封装好基类。<br>
+      Please go to <a href="https://github.com/y1xian/KotlinMvp">GitHub</a> or <a href="http://www.jianshu.com/p/4ccb8d3175bb">http://www.jianshu.com/p/4ccb8d3175bb</a> for details
     ]]></description>
 
     <change-notes><![CDATA[
@@ -31,7 +30,7 @@
     <actions>
         <action id="KotlinMvp" class="template.AndroidMvpAction" text="KotlinMvp"
                 description="Help you to quickly generate a template">
-            <add-to-group group-id="NewGroup" anchor="last"/>
+            <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
     </actions>
 

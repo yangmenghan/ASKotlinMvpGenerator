@@ -1,19 +1,18 @@
 package &package&
 
-import &base&.IBasePresenter
-import &base&.IBaseView
+interface &Contract& {
 
-/**
- * @author yyx
- */
-
-object &Contract& {
-
-    interface View : IBaseView {
-        fun onSuccessData(url_type: Int, load_type: Int, msg: String, status: Int)
+    interface View {
+        fun setModel(model: &UiModel&)
     }
 
-    interface Presenter : IBasePresenter<View> {
-        fun loadRepositories()
+    interface Presenter {
+        fun start()
+    }
+
+    sealed class UiModel : BaseUiModel {
+        data class Content (
+
+        ): UiModel()
     }
 }

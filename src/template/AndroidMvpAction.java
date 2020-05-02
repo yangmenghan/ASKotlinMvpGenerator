@@ -20,99 +20,76 @@ public class AndroidMvpAction extends AnAction {
     VirtualFile selectGroup;
     String pack;
 
-    @Override
-    public void actionPerformed(AnActionEvent e) {
+    @Override public void actionPerformed(AnActionEvent e) {
         project = e.getProject();
         selectGroup = DataKeys.VIRTUAL_FILE.getData(e.getDataContext());
-        String className = Messages.showInputDialog(project, "请输入类名称", "NewMvpGroup", Messages.getQuestionIcon());
+        String className =
+                Messages.showInputDialog(project, "Please enter view name", "NewMvpGroup", Messages.getQuestionIcon());
         if (className == null || className.equals("")) {
-            System.out.print("没有输入类名");
+            System.out.print("No name provided");
             return;
         }
-        if (className.equals("base") || className.equals("BASE") || className.equals("Base")) {
-            createMvpBase();
-        } else {
-            createClassMvp(className);
-        }
+        createMvp(className);
         project.getBaseDir().refresh(false, true);
     }
 
     /**
-     * 创建MVP的Base文件夹
+     * Create MVP
      */
-    private void createMvpBase() {
-        String path = selectGroup.getPath() + "/base";
+    private void createMvp(String viewName) {
+        boolean isFragment = viewName.endsWith("Fragment") || viewName.endsWith("fragment");
 
-        File floder = new File(path);
-        // if file doesnt exists, then create it
-        if (floder.exists()) {
-            return;
-        }
-
+        String prefix = getPrefix(viewName);
+        String path = selectGroup.getPath() + "/" + prefix.toLowerCase();
         String packageName = path.substring(path.indexOf("java") + 5, path.length()).replace("/", ".");
-        String presenter = readFile("IBasePresenter.txt").replace("&package&", packageName);
-        String view = readFile("IBaseView.txt").replace("&package&", packageName);
-        String presenterImpl = readFile("BasePresenter.txt").replace("&package&", packageName);
-        String activity = readFile("BaseActivity.txt").replace("&package&", packageName);
-        String fragment = readFile("BaseFragment.txt").replace("&package&", packageName);
-        String commonUtils = readFile("CommonUtils.txt").replace("&package&", packageName);
-        String exceptionHelper = readFile("ExceptionHelper.txt").replace("&package&", packageName);
 
-        writetoFile(presenter, path, "IBasePresenter.kt");
-        writetoFile(presenterImpl, path, "BasePresenter.kt");
-        writetoFile(view, path, "IBaseView.kt");
-        writetoFile(activity, path, "BaseActivity.kt");
-        writetoFile(fragment, path, "BaseFragment.kt");
-        writetoFile(commonUtils, path, "CommonUtils.kt");
-        writetoFile(exceptionHelper, path, "ExceptionHelper.kt");
-
-    }
-
-    /**
-     * 创建MVP架构
-     */
-    private void createClassMvp(String className) {
-        boolean isFragment = className.endsWith("Fragment") || className.endsWith("fragment");
-        if (className.endsWith("Fragment") || className.endsWith("fragment") || className.endsWith("Activity") || className.endsWith("activity")) {
-            className = className.substring(0, className.length() - 8);
-        }
-        String path = selectGroup.getPath() + "/" + className.toLowerCase();
-        String packageName = path.substring(path.indexOf("java") + 5, path.length()).replace("/", ".");
-        String mvpPath = FileUtil.traverseFolder(path.substring(0, path.indexOf("java")));
-        mvpPath = mvpPath.substring(mvpPath.indexOf("java") + 5, mvpPath.length()).replace("/", ".").replace("\\", ".");
-
-        className = className.substring(0, 1).toUpperCase() + className.substring(1);
+        prefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1);
         pack = path.substring(path.indexOf("java") + 5, path.indexOf("/view")).replace("/", ".");
-        System.out.print(mvpPath + "---" + className + "----" + packageName);
-
-        String contract = readFile("Contract.txt").replace("&package&", packageName).replace("&base&", mvpPath).replace("&Contract&", className + "Contract");
-        String presenter = readFile("Presenter.txt").replace("&package&", packageName).replace("&base&", mvpPath).replace("&Contract&", className + "Contract").replace("&Presenter&", className + "Presenter");
+        System.out.print(prefix + "----" + packageName);
 
         String layoutpath = project.getBasePath() + "/app/src/main/res/layout/";
         String layout = readFile("layout.txt");
 
+        generateFile("Contract", prefix, packageName, path, isFragment);
+        generateFile("Presenter", prefix, packageName, path, isFragment);
+        generateFile("DaggerModule", prefix, packageName, path + "/di/", isFragment);
         if (isFragment) {
-            String fragment = readFile("Fragment.txt").replace("&package&", packageName).replace("&base&", mvpPath).replace("&Fragment&", className + "Fragment").replace("&Contract&", className + "Contract").replace("&Presenter&", className + "Presenter").replace("&pack&", pack).replace("&fragment_main&", "fragment_" + camel2Underline(className));
-            writetoFile(fragment, path, className + "Fragment.kt");
-            writetoFile(layout, layoutpath, "fragment_" + camel2Underline(className) + ".xml");
+            generateFile("Fragment", prefix, packageName, path, isFragment);
+            writetoFile(layout, layoutpath, "fragment_" + camelToSnakeCase(prefix) + ".xml");
         } else {
-            String activity = readFile("Activity.txt").replace("&package&", packageName).replace("&base&", mvpPath).replace("&Activity&", className + "Activity").replace("&Contract&", className + "Contract").replace("&Presenter&", className + "Presenter").replace("&pack&", pack).replace("&activity_main&", "activity_" + camel2Underline(className));
-            writetoFile(activity, path, className + "Activity.kt");
-            writetoFile(layout, layoutpath, "activity_" + camel2Underline(className) + ".xml");
+            generateFile("Activity", prefix, packageName, path, isFragment);
+            writetoFile(layout, layoutpath, "activity_" + camelToSnakeCase(prefix) + ".xml");
         }
-        writetoFile(contract, path, className + "Contract.kt");
-        writetoFile(presenter, path, className + "Presenter.kt");
-
-
     }
 
-    /**
-     * 驼峰法转下划线
-     *
-     * @param line 源字符串
-     * @return 转换后的字符串
-     */
-    public static String camel2Underline(String line) {
+    private void generateFile(String filename, String prefix, String packageName, String path, Boolean isFragment) {
+        String viewTypeString = isFragment  ? "Fragment" : "Activity";
+        String content = readFile(filename + ".txt")
+                .replace("&package&", packageName)
+                .replace("&Contract&", prefix + "Contract")
+                .replace("&Presenter&", prefix + "Presenter")
+                .replace("&Activity&", prefix + "Activity")
+                .replace("&Fragment&", prefix + "Fragment")
+                .replace("&Module&", prefix + "Module")
+                .replace("&View&", prefix + "View")
+                .replace("&Binding&", viewTypeString + prefix + "Binding")
+                .replace("&ViewClass&",  prefix + viewTypeString)
+                .replace("&pack&", pack);
+
+        writetoFile(content, path, prefix + filename +".kt");
+    }
+
+    private String getPrefix(String prefix) {
+        if (prefix.endsWith("Fragment")
+                || prefix.endsWith("fragment")
+                || prefix.endsWith("Activity")
+                || prefix.endsWith("activity")) {
+            prefix = prefix.substring(0, prefix.length() - 8);
+        }
+        return prefix;
+    }
+
+    public static String camelToSnakeCase(String line) {
         if (line == null || "".equals(line)) {
             return "";
         }
@@ -127,7 +104,6 @@ public class AndroidMvpAction extends AnAction {
         }
         return sb.toString();
     }
-
 
     private String readFile(String filename) {
         InputStream in = null;
@@ -156,7 +132,6 @@ public class AndroidMvpAction extends AnAction {
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(content);
             bw.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -171,7 +146,6 @@ public class AndroidMvpAction extends AnAction {
                 outSteam.write(buffer, 0, len);
                 System.out.println(new String(buffer));
             }
-
         } catch (IOException e) {
         } finally {
             outSteam.close();
@@ -179,5 +153,4 @@ public class AndroidMvpAction extends AnAction {
         }
         return outSteam.toByteArray();
     }
-
 }

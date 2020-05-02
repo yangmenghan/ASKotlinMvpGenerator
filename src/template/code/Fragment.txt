@@ -1,49 +1,34 @@
 package &package&
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import &base&.BaseFragment
 import &pack&.R
+import javax.inject.Inject
+import &pack&.&Contract&.UiModel
 
-/**
- * @author yyx
- */
+class &Fragment& : DaggerFragment(), &Contract&.View {
 
-class &Fragment& : BaseFragment<&Contract&.View, &Presenter&>(), &Contract&.View {
+    @Inject lateinit var presenter: &Contract&.Presenter
+    private lateinit var binding: &Binding&
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = &Binding&.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    private fun initView() {
+    }
+
+    override fun setModel(model: UiModel) = when(model){
+
+    }
 
     companion object {
-        @JvmStatic
-        fun newInstance(): &Fragment& {
-            val args = Bundle()
-            val fragment = &Fragment&()
-            fragment.arguments = args
-            return fragment
+        fun newInstance() = &Fragment&().apply {
+                arguments = Bundle()
+            }
         }
     }
-
-    override var mPresenter: &Presenter& = &Presenter&()
-
-    override fun onNetworkLazyLoad() {
-    }
-
-    override fun createView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        if (main_layout == null){
-            main_layout = inflateView(R.layout.&fragment_main&, container!!)
-        }
-        return main_layout!!
-    }
-
-    override fun initView() {
-    }
-
-    override fun initData() {
-    }
-
-    override fun onSuccessData(url_type: Int, load_type: Int, msg: String, status: Int) {
-    }
-
-
-}// Required empty public constructor
+}
