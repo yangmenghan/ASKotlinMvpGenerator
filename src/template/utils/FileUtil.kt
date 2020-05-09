@@ -1,53 +1,51 @@
-package template.utils;
+package template.utils
 
-import java.io.*;
-
-public class FileUtil {
-    public static String readFile(String filename) {
-        InputStream in = FileUtil.class.getResourceAsStream("code/" + filename);
-        String content = "";
+object FileUtil {
+    fun readFile(filename: String): String {
+        val input: InputStream = FileUtil::class.java.getResourceAsStream("code/$filename")
+        var content = ""
         try {
-            content = new String(readStream(in));
-        } catch (Exception e) {
+            content = String(readStream(input))
+        } catch (e: Exception) {
         }
-        return content;
+        return content
     }
 
-    public static void writeToFile(String content, String filepath, String filename) {
+    fun writeToFile(content: String?, filepath: String, filename: String) {
         try {
-            File floder = new File(filepath);
+            val floder = File(filepath)
             // if file doesnt exists, then create it
             if (!floder.exists()) {
-                floder.mkdirs();
+                floder.mkdirs()
             }
-            File file = new File(filepath + "/" + filename);
+            val file = File("$filepath/$filename")
             if (!file.exists()) {
-                file.createNewFile();
+                file.createNewFile()
             }
-
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            val fw = FileWriter(file.getAbsoluteFile())
+            val bw = BufferedWriter(fw)
+            bw.write(content)
+            bw.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
-    public static byte[] readStream(InputStream inStream) throws Exception {
-        ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+    @kotlin.jvm.Throws(Exception::class)
+    fun readStream(inStream: InputStream): ByteArray {
+        val outSteam = ByteArrayOutputStream()
         try {
-            byte[] buffer = new byte[1024];
-            int len = -1;
-            while ((len = inStream.read(buffer)) != -1) {
-                outSteam.write(buffer, 0, len);
-                System.out.println(new String(buffer));
+            val buffer = ByteArray(1024)
+            var len = -1
+            while (inStream.read(buffer).also({ len = it }) != -1) {
+                outSteam.write(buffer, 0, len)
+                System.out.println(String(buffer))
             }
-        } catch (IOException e) {
+        } catch (e: IOException) {
         } finally {
-            outSteam.close();
-            inStream.close();
+            outSteam.close()
+            inStream.close()
         }
-        return outSteam.toByteArray();
+        return outSteam.toByteArray()
     }
 }
