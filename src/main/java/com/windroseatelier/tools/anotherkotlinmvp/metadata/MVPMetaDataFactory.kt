@@ -1,4 +1,4 @@
-package template.metadata
+package com.windroseatelier.tools.anotherkotlinmvp.metadata
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile

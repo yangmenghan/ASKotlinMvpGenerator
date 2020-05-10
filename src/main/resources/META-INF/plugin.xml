@@ -28,7 +28,7 @@
     </extensions>
 
     <actions>
-        <action id="KotlinMvp" class="template.AndroidMvpAction" text="KotlinMvp"
+        <action id="KotlinMvp" class="com.windroseatelier.tools.anotherkotlinmvp.AndroidMvpAction" text="KotlinMvp"
                 description="Help you to quickly generate a template">
             <add-to-group group-id="NewGroup" anchor="first"/>
         </action>

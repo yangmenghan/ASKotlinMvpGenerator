@@ -1,4 +1,4 @@
-package template.metadata
+package com.windroseatelier.tools.anotherkotlinmvp.metadata
 
 class MVPMetaData(
     var name: String,

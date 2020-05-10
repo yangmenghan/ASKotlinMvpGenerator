@@ -1,4 +1,4 @@
-package template.utils
+package com.windroseatelier.tools.anotherkotlinmvp.utils
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern

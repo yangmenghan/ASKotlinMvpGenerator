@@ -1,4 +1,6 @@
-package template.utils
+package com.windroseatelier.tools.anotherkotlinmvp.utils
+
+import java.io.*
 
 object FileUtil {
     fun readFile(filename: String): String {

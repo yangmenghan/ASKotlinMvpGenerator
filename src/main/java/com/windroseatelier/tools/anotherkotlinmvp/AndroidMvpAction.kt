@@ -1,4 +1,4 @@
-package template
+package com.windroseatelier.tools.anotherkotlinmvp
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -6,12 +6,10 @@ import com.intellij.openapi.actionSystem.DataKeys
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
-import template.metadata.MVPMetaData
-import template.metadata.MVPMetaDataFactory
-import template.utils.CaseUtil
-import template.utils.FileUtil
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import com.windroseatelier.tools.anotherkotlinmvp.metadata.MVPMetaData
+import com.windroseatelier.tools.anotherkotlinmvp.metadata.MVPMetaDataFactory
+import com.windroseatelier.tools.anotherkotlinmvp.utils.FileUtil
+import com.windroseatelier.tools.anotherkotlinmvp.utils.CaseUtil
 
 /**
  * @author yyx
