@@ -4,27 +4,19 @@ import java.io.*
 
 object FileUtil {
     fun readFile(filename: String): String {
-        val input: InputStream = FileUtil::class.java.getResourceAsStream("code/$filename")
-        var content = ""
-        try {
-            content = String(readStream(input))
-        } catch (e: Exception) {
-        }
-        return content
+        val input = FileUtil::class.java.getResourceAsStream("code/$filename")
+        return runCatching { String(readStream(input)) }.getOrDefault("")
     }
 
-    fun writeToFile(content: String?, filepath: String, filename: String) {
+    fun writeToFile(content: String, filePath: String, fileName: String) {
         try {
-            val floder = File(filepath)
-            // if file doesnt exists, then create it
-            if (!floder.exists()) {
-                floder.mkdirs()
-            }
-            val file = File("$filepath/$filename")
-            if (!file.exists()) {
-                file.createNewFile()
-            }
-            val fw = FileWriter(file.getAbsoluteFile())
+            val floder = File(filePath)
+            // if file doesn't exists, then create it
+            if (!floder.exists()) floder.mkdirs()
+            val file = File("$filePath/$fileName")
+
+            if (!file.exists()) file.createNewFile()
+            val fw = FileWriter(file.absoluteFile)
             val bw = BufferedWriter(fw)
             bw.write(content)
             bw.close()
@@ -33,15 +25,15 @@ object FileUtil {
         }
     }
 
-    @kotlin.jvm.Throws(Exception::class)
+    @Throws(Exception::class)
     fun readStream(inStream: InputStream): ByteArray {
         val outSteam = ByteArrayOutputStream()
         try {
             val buffer = ByteArray(1024)
             var len = -1
-            while (inStream.read(buffer).also({ len = it }) != -1) {
+            while (inStream.read(buffer).also { len = it } != -1) {
                 outSteam.write(buffer, 0, len)
-                System.out.println(String(buffer))
+                println(message = String(buffer))
             }
         } catch (e: IOException) {
         } finally {

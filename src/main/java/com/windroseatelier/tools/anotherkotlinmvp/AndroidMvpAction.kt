@@ -2,37 +2,39 @@ package com.windroseatelier.tools.anotherkotlinmvp
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataKeys
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
 import com.windroseatelier.tools.anotherkotlinmvp.metadata.MVPMetaData
 import com.windroseatelier.tools.anotherkotlinmvp.metadata.MVPMetaDataFactory
-import com.windroseatelier.tools.anotherkotlinmvp.utils.FileUtil
 import com.windroseatelier.tools.anotherkotlinmvp.utils.CaseUtil
+import com.windroseatelier.tools.anotherkotlinmvp.utils.FileUtil
 
 /**
  * @author yyx
  * @date 2017/11/6
  */
 class AndroidMvpAction : AnAction() {
-    var project: Project? = null
-    var selectGroup: VirtualFile? = null
-    var metaData: MVPMetaData? = null
+    private lateinit var project: Project
+    private lateinit var selectGroup: VirtualFile
+    private lateinit var metaData: MVPMetaData
 
-    @Override
-    fun actionPerformed(e: AnActionEvent) {
-        project = e.getProject()
-        selectGroup = DataKeys.VIRTUAL_FILE.getData(e.getDataContext())
-        val className: String =
+    override fun actionPerformed(e: AnActionEvent) {
+        project = e.getData(CommonDataKeys.PROJECT)
+            ?: return Messages.showWarningDialog(project, "Should be in project", "Project not found")
+        selectGroup = e.getData(CommonDataKeys.VIRTUAL_FILE)
+            ?: return Messages.showWarningDialog(project, "No group selected", "Group not found")
+        val className =
             Messages.showInputDialog(project, "Please enter view name", "NewMvpGroup", Messages.getQuestionIcon())
-        if (className == null || className.equals("")) {
-            System.out.print("No name provided")
+        if (className.isNullOrEmpty()) {
+            print("No name provided")
             return
         }
         metaData = MVPMetaDataFactory.getMetaData(className, getPrefix(className), selectGroup, project)
         createMvp()
-        project.getBaseDir().refresh(false, true)
+        project.guessProjectDir()?.refresh(false, true)
     }
 
     /**
@@ -42,20 +44,20 @@ class AndroidMvpAction : AnAction() {
         val layout: String = FileUtil.readFile("layout.txt")
         generateFile("Contract", metaData.path)
         generateFile("Presenter", metaData.path)
-        generateFile("Module", metaData.path.toString() + "/di/")
+        generateFile("Module", metaData.path + "/di/")
         if (metaData.useFragment) {
             generateFile("Fragment", metaData.path)
             FileUtil.writeToFile(
                 layout,
                 metaData.layoutPath,
-                "fragment_" + CaseUtil.camelToSnakeCase(metaData.prefix).toString() + ".xml"
+                "fragment_" + CaseUtil.camelToSnakeCase(metaData.prefix) + ".xml"
             )
         } else {
             generateFile("Activity", metaData.path)
             FileUtil.writeToFile(
                 layout,
                 metaData.layoutPath,
-                "activity_" + CaseUtil.camelToSnakeCase(metaData.prefix).toString() + ".xml"
+                "activity_" + CaseUtil.camelToSnakeCase(metaData.prefix) + ".xml"
             )
         }
     }
@@ -63,28 +65,23 @@ class AndroidMvpAction : AnAction() {
     private fun generateFile(filename: String, path: String) {
         val viewTypeString = if (metaData.useFragment) "Fragment" else "Activity"
         val content: String = FileUtil.readFile("$filename.txt")
-            .replace("&Contract&", metaData.prefix.toString() + "Contract")
-            .replace("&Presenter&", metaData.prefix.toString() + "Presenter")
-            .replace("&Activity&", metaData.prefix.toString() + "Activity")
-            .replace("&Fragment&", metaData.prefix.toString() + "Fragment")
-            .replace("&Module&", metaData.prefix.toString() + "Module")
-            .replace("&View&", metaData.prefix.toString() + "View")
-            .replace("&Binding&", viewTypeString + metaData.prefix.toString() + "Binding")
+            .replace("&Contract&", metaData.prefix + "Contract")
+            .replace("&Presenter&", metaData.prefix + "Presenter")
+            .replace("&Activity&", metaData.prefix + "Activity")
+            .replace("&Fragment&", metaData.prefix + "Fragment")
+            .replace("&Module&", metaData.prefix + "Module")
+            .replace("&View&", metaData.prefix + "View")
+            .replace("&Binding&", viewTypeString + metaData.prefix + "Binding")
             .replace("&ViewClass&", metaData.prefix + viewTypeString)
             .replace("&pack&", metaData.rootPackage)
             .replace("&package&", metaData.packageName)
         FileUtil.writeToFile(content, path, metaData.prefix + filename + ".kt")
     }
 
-    private fun getPrefix(prefix: String): String {
-        var prefix = prefix
+    private fun getPrefix(prefix: String): String =
         if (prefix.endsWith("Fragment")
             || prefix.endsWith("fragment")
             || prefix.endsWith("Activity")
             || prefix.endsWith("activity")
-        ) {
-            prefix = prefix.substring(0, prefix.length() - 8)
-        }
-        return prefix
-    }
+        ) prefix.substring(0, prefix.length - 8) else prefix
 }
